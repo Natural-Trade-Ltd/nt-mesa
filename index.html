@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mesa NT · avisos y promociones</title>
+<style>
+  :root{--fondo:#F2EDE3;--fondo2:#F6F1E7;--card:#FBF8F1;--borde:#E0D8C8;--salvia:#587F6B;--salviaBg:#E4EDE7;--tinta:#3A3129;--sub:#71655A;--tenue:#9C8F80;--cafe:#8A6F5B;--alerta:#9A6A12;--alertaBg:#F5EBD6;--riesgo:#AE4E2B;--info:#3D6F9E;--infoBg:#E4EDF6;}
+  *{box-sizing:border-box;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+  body{background:var(--fondo);color:var(--tinta);padding:18px;max-width:760px;margin:0 auto}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--tenue);font-size:12.5px;margin-top:2px}
+  .card{background:var(--card);border:1px solid var(--borde);border-radius:16px;padding:16px;margin-top:14px}
+  h2{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tenue);font-weight:600;margin:22px 0 4px}
+  label{display:block;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tenue);font-weight:600;margin:10px 0 4px}
+  input,textarea,select{width:100%;border:1px solid var(--borde);border-radius:10px;padding:9px;font-size:14px;color:var(--tinta);background:#fff}
+  textarea{min-height:64px;resize:vertical}
+  .fila{display:flex;gap:10px}.fila>*{flex:1}
+  button{border:0;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
+  .pri{background:var(--salvia);color:#F6FBF7;width:100%;margin-top:12px}
+  .ghost{background:transparent;border:1px solid var(--borde);color:var(--sub);font-weight:500;font-size:12.5px;padding:7px 12px;border-radius:10px}
+  .peligro{border-color:var(--riesgo);color:var(--riesgo)}
+  .item{border-top:1px solid var(--borde);padding:12px 0}
+  .item:first-child{border-top:0;padding-top:0}
+  .itHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .itTit{font-size:14.5px;font-weight:600;flex:1}
+  .itCuerpo{color:var(--sub);font-size:12.5px;margin-top:3px;line-height:1.4}
+  .chip{font-size:10.5px;font-weight:600;border-radius:999px;padding:3px 9px}
+  .c-info{background:var(--infoBg);color:var(--info)} .c-alerta{background:var(--alertaBg);color:var(--alerta)} .c-positivo{background:var(--salviaBg);color:var(--salvia)} .c-off{background:var(--fondo2);color:var(--tenue)}
+  .acciones{display:flex;gap:8px;margin-top:8px}
+  .foto{width:74px;height:74px;object-fit:cover;border-radius:10px;border:1px solid var(--borde)}
+  .aviso{background:var(--salviaBg);color:var(--salvia);border-radius:12px;padding:10px;font-size:12.5px;margin-top:10px;display:none}
+  .error{background:#F6E3DA;color:var(--riesgo)}
+  .nota{color:var(--tenue);font-size:11px;line-height:1.5;margin-top:16px}
+  #panel{display:none}
+  #preview{max-width:160px;border-radius:10px;border:1px solid var(--borde);display:none;margin-top:8px}
+</style>
+</head>
+<body>
+  <h1>Mesa NT</h1>
+  <div class="sub">Avisos de mercado/logística y promociones · lo que publiques aquí lo ven los clientes en la app (pestaña Mercado)</div>
+
+  <div class="card" id="acceso">
+    <label>Clave del equipo</label>
+    <input id="clave" type="password" placeholder="La clave de la Mesa NT" autocomplete="off">
+    <button class="pri" onclick="entrar()">Entrar</button>
+    <div class="aviso error" id="errAcceso"></div>
+  </div>
+
+  <div id="panel">
+    <h2>Avisos de tu mesa NT (mercado y logística)</h2>
+    <div class="card">
+      <div id="avisos"></div>
+      <div style="border-top:1px solid var(--borde);margin-top:12px;padding-top:4px">
+        <label>Nuevo aviso / editar</label>
+        <input type="hidden" id="avId">
+        <div class="fila">
+          <div><label>Tipo</label><select id="avTipo"><option value="info">Info (azul)</option><option value="alerta">Alerta (ámbar)</option><option value="positivo">Positivo (salvia)</option></select></div>
+          <div><label>Orden</label><input id="avOrden" type="number" value="1" min="1"></div>
+        </div>
+        <label>Título</label><input id="avTitulo" placeholder="ej. Mantenimiento en vía férrea Laredo">
+        <label>Detalle (opcional)</label><textarea id="avCuerpo" placeholder="ej. +2 días en cruces esta semana; confirma antes del jueves."></textarea>
+        <button class="pri" onclick="guardarAviso()">Publicar aviso</button>
+        <div class="aviso" id="okAviso"></div>
+      </div>
+    </div>
+
+    <h2>Promociones de producto</h2>
+    <div class="card">
+      <div id="promos"></div>
+      <div style="border-top:1px solid var(--borde);margin-top:12px;padding-top:4px">
+        <label>Nueva promoción / editar</label>
+        <input type="hidden" id="prId"><input type="hidden" id="prFotoUrl">
+        <label>Título</label><input id="prTitulo" placeholder="ej. Llegó Triplay C+C de Brasil">
+        <label>Descripción</label><textarea id="prCuerpo" placeholder="ej. Contenedores en tránsito, varios espesores. Pregunta a tu trader por disponibilidad."></textarea>
+        <div class="fila">
+          <div><label>Etiqueta (chip)</label><input id="prEtiqueta" placeholder="NUEVO · PROMO · LLEGANDO"></div>
+          <div><label>Orden</label><input id="prOrden" type="number" value="1" min="1"></div>
+          <div><label>Vence (opcional)</label><input id="prVence" type="date"></div>
+        </div>
+        <label>Foto (opcional — se reduce sola)</label>
+        <input id="prFoto" type="file" accept="image/*">
+        <img id="preview">
+        <label>Capturado por</label><input id="prQuien" placeholder="Tu nombre">
+        <button class="pri" onclick="guardarPromo()">Publicar promoción</button>
+        <div class="aviso" id="okPromo"></div>
+      </div>
+    </div>
+
+    <div class="nota">La clave vive en el servidor y se rota con un UPDATE (pídesela a Jorge). No publiques costos, márgenes, proveedores ni información de clientes — esto lo ven TODOS los clientes en su app. Los avisos aparecen al instante; las promociones, a partir de la versión que estrena la sección.</div>
+  </div>
+
+<script>
+// La página es estática (GitHub Pages) porque Supabase no sirve HTML en *.supabase.co;
+// la API y los datos siguen viviendo en Supabase (función mesa-nt, sin llaves aquí).
+const API = 'https://borouviqngtdzfvlmlur.supabase.co/functions/v1/mesa-nt';
+let CLAVE = localStorage.getItem('mesa_clave') || '';
+let fotoB64 = null, fotoMime = null;
+if (CLAVE) { document.getElementById('clave').value = CLAVE; entrar(); }
+
+async function llamar(body) {
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, clave: CLAVE }) });
+  return r.json();
+}
+async function entrar() {
+  CLAVE = document.getElementById('clave').value.trim();
+  const r = await llamar({ action: 'lista' });
+  const err = document.getElementById('errAcceso');
+  if (!r.ok) { err.textContent = r.error === 'clave' ? 'Clave incorrecta.' : ('Error: ' + r.error); err.style.display = 'block'; return; }
+  localStorage.setItem('mesa_clave', CLAVE);
+  document.getElementById('acceso').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+  pintar(r);
+}
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+// Los items viven en memoria y los botones solo llevan el id — un título con comillas
+// o apóstrofes jamás rompe el HTML.
+let AV = {}, PR = {};
+function pintar(r) {
+  AV = {}; PR = {};
+  (r.avisos || []).forEach(a => AV[a.id] = a);
+  (r.promos || []).forEach(p => PR[p.id] = p);
+  document.getElementById('avisos').innerHTML = (r.avisos || []).map(a =>
+    '<div class="item"><div class="itHead"><span class="chip c-' + (a.activo ? esc(a.tipo) : 'off') + '">' + (a.activo ? esc(a.tipo) : 'quitado') + '</span><span class="itTit">' + esc(a.titulo) + '</span><span class="chip c-off">orden ' + a.orden + '</span></div>' +
+    (a.cuerpo ? '<div class="itCuerpo">' + esc(a.cuerpo) + '</div>' : '') +
+    (a.activo ? '<div class="acciones"><button class="ghost" onclick="editarAviso(' + a.id + ')">Editar</button><button class="ghost peligro" onclick="quitarAviso(' + a.id + ')">Quitar</button></div>' : '') +
+    '</div>').join('') || '<div class="itCuerpo">Sin avisos.</div>';
+  document.getElementById('promos').innerHTML = (r.promos || []).map(p =>
+    '<div class="item"><div style="display:flex;gap:12px">' + (p.foto_url ? '<img class="foto" src="' + esc(p.foto_url) + '">' : '') +
+    '<div style="flex:1"><div class="itHead">' + (p.etiqueta ? '<span class="chip c-positivo">' + esc(p.etiqueta) + '</span>' : '') + '<span class="itTit">' + esc(p.titulo) + '</span>' + (!p.activo ? '<span class="chip c-off">quitada</span>' : '') + '</div>' +
+    (p.cuerpo ? '<div class="itCuerpo">' + esc(p.cuerpo) + '</div>' : '') +
+    '<div class="itCuerpo">orden ' + p.orden + (p.vence ? ' · vence ' + esc(p.vence) : '') + (p.creado_por ? ' · ' + esc(p.creado_por) : '') + '</div>' +
+    (p.activo ? '<div class="acciones"><button class="ghost" onclick="editarPromo(' + p.id + ')">Editar</button><button class="ghost peligro" onclick="quitarPromo(' + p.id + ')">Quitar</button></div>' : '') +
+    '</div></div></div>').join('') || '<div class="itCuerpo">Sin promociones.</div>';
+}
+async function refrescar() { const r = await llamar({ action: 'lista' }); if (r.ok) pintar(r); }
+function flash(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove('error'); el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3500); }
+function flashErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('error'); el.style.display = 'block'; }
+
+function editarAviso(id) { const a = AV[id]; if (!a) return; avId.value = a.id; avTipo.value = a.tipo; avOrden.value = a.orden; avTitulo.value = a.titulo; avCuerpo.value = a.cuerpo || ''; avTitulo.scrollIntoView({ behavior: 'smooth' }); }
+async function guardarAviso() {
+  const r = await llamar({ action: 'aviso_guardar', id: avId.value ? Number(avId.value) : undefined, tipo: avTipo.value, titulo: avTitulo.value, cuerpo: avCuerpo.value, orden: Number(avOrden.value) || 1 });
+  if (!r.ok) return flashErr('okAviso', 'No se guardó: ' + r.error);
+  avId.value = ''; avTitulo.value = ''; avCuerpo.value = ''; avOrden.value = 1;
+  flash('okAviso', 'Publicado — los clientes ya lo ven en Mercado.'); refrescar();
+}
+async function quitarAviso(id) { await llamar({ action: 'aviso_quitar', id }); refrescar(); }
+
+document.getElementById('prFoto').addEventListener('change', (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    const k = Math.min(1, 1280 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    fotoB64 = c.toDataURL('image/jpeg', 0.85); fotoMime = 'image/jpeg';
+    const pv = document.getElementById('preview'); pv.src = fotoB64; pv.style.display = 'block';
+  };
+  img.src = URL.createObjectURL(f);
+});
+function editarPromo(id) { const p = PR[id]; if (!p) return; prId.value = p.id; prFotoUrl.value = p.foto_url || ''; prTitulo.value = p.titulo; prCuerpo.value = p.cuerpo || ''; prEtiqueta.value = p.etiqueta || ''; prOrden.value = p.orden; prVence.value = p.vence || ''; prQuien.value = p.creado_por || ''; fotoB64 = null; prTitulo.scrollIntoView({ behavior: 'smooth' }); }
+async function guardarPromo() {
+  const r = await llamar({ action: 'promo_guardar', id: prId.value ? Number(prId.value) : undefined,
+    titulo: prTitulo.value, cuerpo: prCuerpo.value, etiqueta: prEtiqueta.value, orden: Number(prOrden.value) || 1,
+    vence: prVence.value, creado_por: prQuien.value, foto_url: prFotoUrl.value,
+    foto_base64: fotoB64 || undefined, foto_mime: fotoMime || undefined });
+  if (!r.ok) return flashErr('okPromo', 'No se guardó: ' + r.error);
+  prId.value = ''; prFotoUrl.value = ''; prTitulo.value = ''; prCuerpo.value = ''; prEtiqueta.value = ''; prOrden.value = 1; prVence.value = ''; fotoB64 = null;
+  document.getElementById('preview').style.display = 'none'; document.getElementById('prFoto').value = '';
+  flash('okPromo', 'Publicada — entra a la app con la sección de Promociones.'); refrescar();
+}
+async function quitarPromo(id) { await llamar({ action: 'promo_quitar', id }); refrescar(); }
+</script>
+</body>
+</html>
