@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cerebro NT · acceso</title>
+<!-- Portón del Cerebro NT. Vive en GitHub Pages (nt-mesa) porque *.supabase.co
+     fuerza text/plain a las páginas (gotcha documentado). Fuente de verdad:
+     docs/mapa/cerebro.html en nt-portal-app — se edita ALLÁ y se copia a nt-mesa
+     (main Y gh-pages). Cero llaves aquí: la clave vive en app_config y el mapa
+     llega por POST desde la edge mapa-nt solo con la clave correcta. -->
+<style>
+:root{--fondo:#F2EDE3;--card:#FBF8F1;--borde:#E0D8C8;--salvia:#587F6B;--tinta:#3A3129;--tenue:#9C8F80;--riesgo:#AE4E2B}
+*{box-sizing:border-box;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:var(--fondo);color:var(--tinta);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
+.card{background:var(--card);border:1px solid var(--borde);border-radius:16px;padding:26px;max-width:380px;width:100%}
+h1{font-size:19px;font-weight:600}
+p{color:var(--tenue);font-size:12.5px;margin-top:4px;line-height:1.5}
+label{display:block;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tenue);font-weight:600;margin:16px 0 5px}
+input{width:100%;border:1px solid var(--borde);border-radius:10px;padding:10px;font-size:14px;color:var(--tinta);background:#fff}
+button{border:0;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;background:var(--salvia);color:#F6FBF7;width:100%;margin-top:14px}
+button[disabled]{opacity:.6;cursor:wait}
+.err{color:var(--riesgo);font-size:12.5px;margin-top:10px;display:none}
+</style></head><body>
+<div class="card">
+  <h1>Cerebro NT</h1>
+  <p>El mapa de cómo funciona la NT App. Acceso con la clave del equipo.</p>
+  <label>Clave del equipo</label>
+  <input id="clave" type="password" autocomplete="off" onkeydown="if(event.key==='Enter')entrar()">
+  <button id="btn" onclick="entrar()">Entrar</button>
+  <div class="err" id="err"></div>
+</div>
+<script>
+var API='https://borouviqngtdzfvlmlur.supabase.co/functions/v1/mapa-nt';
+async function entrar(){
+  var clave=document.getElementById('clave').value.trim();
+  var err=document.getElementById('err'), btn=document.getElementById('btn');
+  err.style.display='none';
+  if(!clave){err.textContent='Escribe la clave.';err.style.display='block';return}
+  btn.disabled=true; btn.textContent='Abriendo el mapa…';
+  try{
+    var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clave:clave})});
+    if(!r.ok){
+      err.textContent=r.status===401?'Clave incorrecta.':(r.status===404?'El portal aún no se ha subido.':'Error del servidor ('+r.status+').');
+      err.style.display='block'; btn.disabled=false; btn.textContent='Entrar'; return;
+    }
+    var html=await r.text();
+    try{sessionStorage.setItem('mapa_clave',clave)}catch(_){}
+    document.open(); document.write(html); document.close();
+  }catch(e){
+    err.textContent='Sin conexión. Intenta de nuevo.'; err.style.display='block';
+    btn.disabled=false; btn.textContent='Entrar';
+  }
+}
+try{
+  var guardada=sessionStorage.getItem('mapa_clave');
+  if(guardada){document.getElementById('clave').value=guardada;entrar()}
+}catch(_){}
+</script></body></html>
