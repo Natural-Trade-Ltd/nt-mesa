@@ -55,6 +55,7 @@
         <label>Nuevo aviso / editar</label>
         <input type="hidden" id="avId">
         <div class="fila">
+          <div><label>Sección (en la app)</label><select id="avTema"><option value="ofertas">Otras ofertas</option><option value="logistica">Logística</option><option value="noticias" selected>Noticias relevantes</option></select></div>
           <div><label>Tipo</label><select id="avTipo"><option value="info">Info (azul)</option><option value="alerta">Alerta (ámbar)</option><option value="positivo">Positivo (salvia)</option></select></div>
           <div><label>Orden</label><input id="avOrden" type="number" value="1" min="1"></div>
         </div>
@@ -113,6 +114,8 @@ async function entrar() {
   pintar(r);
 }
 function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+// Secciones de la pestaña Mercado (deben coincidir con la app).
+const TEMAS = { ofertas: 'Otras ofertas', logistica: 'Logística', noticias: 'Noticias relevantes' };
 // Los items viven en memoria y los botones solo llevan el id — un título con comillas
 // o apóstrofes jamás rompe el HTML.
 let AV = {}, PR = {};
@@ -121,7 +124,7 @@ function pintar(r) {
   (r.avisos || []).forEach(a => AV[a.id] = a);
   (r.promos || []).forEach(p => PR[p.id] = p);
   document.getElementById('avisos').innerHTML = (r.avisos || []).map(a =>
-    '<div class="item"><div class="itHead"><span class="chip c-' + (a.activo ? esc(a.tipo) : 'off') + '">' + (a.activo ? esc(a.tipo) : 'quitado') + '</span><span class="itTit">' + esc(a.titulo) + '</span><span class="chip c-off">orden ' + a.orden + '</span></div>' +
+    '<div class="item"><div class="itHead"><span class="chip c-' + (a.activo ? esc(a.tipo) : 'off') + '">' + (a.activo ? esc(a.tipo) : 'quitado') + '</span><span class="itTit">' + esc(a.titulo) + '</span><span class="chip c-off">' + (TEMAS[a.tema] || 'Noticias relevantes') + '</span><span class="chip c-off">orden ' + a.orden + '</span></div>' +
     (a.cuerpo ? '<div class="itCuerpo">' + esc(a.cuerpo) + '</div>' : '') +
     (a.activo ? '<div class="acciones"><button class="ghost" onclick="editarAviso(' + a.id + ')">Editar</button><button class="ghost peligro" onclick="quitarAviso(' + a.id + ')">Quitar</button></div>' : '') +
     '</div>').join('') || '<div class="itCuerpo">Sin avisos.</div>';
@@ -137,11 +140,11 @@ async function refrescar() { const r = await llamar({ action: 'lista' }); if (r.
 function flash(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.remove('error'); el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3500); }
 function flashErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('error'); el.style.display = 'block'; }
 
-function editarAviso(id) { const a = AV[id]; if (!a) return; avId.value = a.id; avTipo.value = a.tipo; avOrden.value = a.orden; avTitulo.value = a.titulo; avCuerpo.value = a.cuerpo || ''; avTitulo.scrollIntoView({ behavior: 'smooth' }); }
+function editarAviso(id) { const a = AV[id]; if (!a) return; avId.value = a.id; avTema.value = a.tema || 'noticias'; avTipo.value = a.tipo; avOrden.value = a.orden; avTitulo.value = a.titulo; avCuerpo.value = a.cuerpo || ''; avTitulo.scrollIntoView({ behavior: 'smooth' }); }
 async function guardarAviso() {
-  const r = await llamar({ action: 'aviso_guardar', id: avId.value ? Number(avId.value) : undefined, tipo: avTipo.value, titulo: avTitulo.value, cuerpo: avCuerpo.value, orden: Number(avOrden.value) || 1 });
+  const r = await llamar({ action: 'aviso_guardar', id: avId.value ? Number(avId.value) : undefined, tema: avTema.value, tipo: avTipo.value, titulo: avTitulo.value, cuerpo: avCuerpo.value, orden: Number(avOrden.value) || 1 });
   if (!r.ok) return flashErr('okAviso', 'No se guardó: ' + r.error);
-  avId.value = ''; avTitulo.value = ''; avCuerpo.value = ''; avOrden.value = 1;
+  avId.value = ''; avTitulo.value = ''; avCuerpo.value = ''; avOrden.value = 1; avTema.value = 'noticias';
   flash('okAviso', 'Publicado — los clientes ya lo ven en Mercado.'); refrescar();
 }
 async function quitarAviso(id) { await llamar({ action: 'aviso_quitar', id }); refrescar(); }
