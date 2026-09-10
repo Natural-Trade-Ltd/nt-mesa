@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mesa NT · Clientes y personalización</title>
+<style>
+  :root{--fondo:#F2EDE3;--fondo2:#F6F1E7;--card:#FBF8F1;--borde:#E0D8C8;--salvia:#587F6B;--salviaBg:#E4EDE7;--tinta:#3A3129;--sub:#71655A;--tenue:#9C8F80;--cafe:#8A6F5B;--alerta:#9A6A12;--alertaBg:#F5EBD6;--riesgo:#AE4E2B;--info:#3D6F9E;--infoBg:#E4EDF6;}
+  *{box-sizing:border-box;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+  body{background:var(--fondo);color:var(--tinta);padding:18px;max-width:1040px;margin:0 auto}
+  a{color:var(--salvia)}
+  .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--tenue);font-size:12.5px;margin-top:2px}
+  .nav{font-size:13px}
+  .card{background:var(--card);border:1px solid var(--borde);border-radius:16px;padding:16px;margin-top:14px}
+  h2{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--tenue);font-weight:600;margin:22px 0 4px}
+  label{display:block;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tenue);font-weight:600;margin:10px 0 4px}
+  input,textarea,select{width:100%;border:1px solid var(--borde);border-radius:10px;padding:9px;font-size:14px;color:var(--tinta);background:#fff}
+  button{border:0;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
+  .pri{background:var(--salvia);color:#F6FBF7;width:100%;margin-top:12px}
+  .ghost{background:transparent;border:1px solid var(--borde);color:var(--sub);font-weight:500;font-size:12.5px;padding:7px 12px;border-radius:10px}
+  .mini{background:var(--salvia);color:#F6FBF7;font-size:12.5px;padding:8px 14px;border-radius:10px}
+  .chip{font-size:10.5px;font-weight:600;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .c-info{background:var(--infoBg);color:var(--info)} .c-alerta{background:var(--alertaBg);color:var(--alerta)} .c-ok{background:var(--salviaBg);color:var(--salvia)} .c-off{background:var(--fondo2);color:var(--tenue)} .c-cafe{background:#EFE6DC;color:var(--cafe)}
+  .aviso{background:var(--salviaBg);color:var(--salvia);border-radius:12px;padding:10px;font-size:12.5px;margin-top:10px;display:none}
+  .error{background:#F6E3DA;color:var(--riesgo)}
+  .nota{color:var(--tenue);font-size:11px;line-height:1.5;margin-top:16px}
+  #panel{display:none}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+  .kpi{background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:12px 14px}
+  .kpi .n{font-size:24px;font-weight:600;line-height:1.1}
+  .kpi .t{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tenue);font-weight:600;margin-top:4px}
+  .filtros{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr;gap:10px;align-items:end}
+  @media (max-width:720px){.filtros{grid-template-columns:1fr 1fr}}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sub);padding:9px 0}
+  .check input{width:auto}
+  .grupo{margin-top:18px}
+  .grupoH{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 2px}
+  .grupoH b{font-size:14.5px;font-weight:600}
+  .contacto{background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:14px;margin-top:8px}
+  .cHead{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+  .cNom{font-size:15px;font-weight:600;flex:1;min-width:180px}
+  .cNom small{display:block;font-weight:400;color:var(--sub);font-size:12.5px;margin-top:2px}
+  .cMeta{color:var(--tenue);font-size:12px;margin-top:6px;line-height:1.5;word-break:break-word}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .acciones{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .detalle{display:none;border-top:1px solid var(--borde);margin-top:12px;padding-top:10px}
+  .detalle.abierto{display:block}
+  .qa{display:grid;grid-template-columns:minmax(160px,1fr) 2fr;gap:6px 14px;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--borde)}
+  .qa:last-child{border-bottom:0}
+  .qa .q{color:var(--sub)}
+  .qa .a{font-weight:500}
+  @media (max-width:560px){.qa{grid-template-columns:1fr}}
+  .asignar{display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:10px;margin-top:8px;align-items:end}
+  @media (max-width:720px){.asignar{grid-template-columns:1fr}}
+  .reglas{background:var(--fondo2);border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--sub);margin-top:8px;line-height:1.5}
+  .barra{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0}
+  .barra .lab{flex:0 0 46%;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .barra .bg{flex:1;height:8px;background:var(--fondo2);border-radius:4px;overflow:hidden}
+  .barra .fg{height:100%;background:var(--salvia);border-radius:4px}
+  .barra .n{flex:0 0 28px;text-align:right;font-weight:600}
+  .preg{margin-top:12px}
+  .preg .t{font-size:13px;font-weight:600;margin-bottom:4px}
+  .vacio{color:var(--tenue);font-size:13px;padding:10px 0}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div>
+      <h1>Mesa NT · Clientes</h1>
+      <div class="sub">Quién se registró en la NT App, qué contestó al personalizarla, y a qué cliente y trader pertenece</div>
+    </div>
+    <div class="nav"><a href="index.html">← Avisos y promociones</a></div>
+  </div>
+
+  <div class="card" id="acceso">
+    <label>Clave del equipo</label>
+    <input id="clave" type="password" placeholder="La clave de la Mesa NT" autocomplete="off">
+    <button class="pri" onclick="entrar()">Entrar</button>
+    <div class="aviso error" id="errAcceso"></div>
+  </div>
+
+  <div id="panel">
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="filtros">
+        <div><label>Buscar</label><input id="fBuscar" placeholder="nombre, empresa o correo" oninput="pintar()"></div>
+        <div><label>Trader</label><select id="fTrader" onchange="pintar()"></select></div>
+        <div><label>Estado</label><select id="fEstado" onchange="pintar()">
+          <option value="">Todos</option><option value="pendiente">Sin asignar</option><option value="vinculado">Vinculados</option>
+          <option value="prospecto">Prospectos</option><option value="equipo">Equipo NT</option><option value="descartado">Descartados</option></select></div>
+        <div><label class="check" style="margin:0"><input type="checkbox" id="fConResp" onchange="pintar()"> Solo con cuestionario</label></div>
+      </div>
+      <label>Tu nombre (queda registrado en cada asignación)</label>
+      <input id="quien" placeholder="ej. Jorge" oninput="localStorage.setItem('mesa_quien', this.value)">
+    </div>
+
+    <div id="lista"></div>
+
+    <h2>Resumen del cuestionario</h2>
+    <div class="card" id="resumen"></div>
+
+    <div class="nota">Esta información es del equipo: nombres, empresas, correos y respuestas de clientes. No se comparte fuera de NT / GF. La liga automática ocurre solo cuando el celular ya estaba autorizado en la app; el resto se asigna aquí. Al ligar un contacto a un cliente, el trader se toma de la cartera (config_clientes) salvo que elijas otro.</div>
+  </div>
+
+<script>
+const API = 'https://borouviqngtdzfvlmlur.supabase.co/functions/v1/mesa-nt';
+let CLAVE = localStorage.getItem('mesa_clave') || '';
+let D = null;          // respuesta completa de 'contactos'
+let ABIERTOS = {};     // phone → true si el detalle está desplegado
+document.getElementById('quien').value = localStorage.getItem('mesa_quien') || '';
+if (CLAVE) { document.getElementById('clave').value = CLAVE; entrar(); }
+
+async function llamar(body) {
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, clave: CLAVE }) });
+  return r.json();
+}
+async function entrar() {
+  CLAVE = document.getElementById('clave').value.trim();
+  const r = await llamar({ action: 'contactos' });
+  const err = document.getElementById('errAcceso');
+  if (!r.ok) { err.textContent = r.error === 'clave' ? 'Clave incorrecta.' : ('Error: ' + r.error); err.style.display = 'block'; return; }
+  localStorage.setItem('mesa_clave', CLAVE);
+  document.getElementById('acceso').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+  cargar(r);
+}
+async function refrescar() { const r = await llamar({ action: 'contactos' }); if (r.ok) cargar(r); }
+function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+function fecha(s) { if (!s) return ''; const d = new Date(s); return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }); }
+
+// ── Índices ──
+let PREG = {}, RESP = {}, CLI = {}, TRD = {}, REGLAS = {};
+function cargar(r) {
+  D = r; PREG = {}; RESP = {}; CLI = {}; TRD = {}; REGLAS = {};
+  r.preguntas.forEach(p => PREG[p.id] = p);
+  r.respuestas.forEach(x => { (RESP[x.phone] = RESP[x.phone] || []).push(x); });
+  r.clientes.forEach(c => CLI[String(c.cliente_id)] = c);
+  r.traders.forEach(t => TRD[t.email] = t);
+  const acum = (lista, k) => lista.forEach(x => { const id = String(x.cliente_id); REGLAS[id] = REGLAS[id] || { curacion: 0, ofertar: 0, margenes: 0, frenos: 0 }; REGLAS[id][k]++; if (k === 'curacion' && x.ofertar) REGLAS[id].ofertar++; });
+  acum(r.reglas.curacion, 'curacion'); acum(r.reglas.margenes, 'margenes'); acum(r.reglas.frenos, 'frenos');
+  // Filtro de trader: mantiene la selección.
+  const sel = document.getElementById('fTrader'); const antes = sel.value;
+  sel.innerHTML = '<option value="">Todos</option><option value="__sin">Sin trader</option>' + r.traders.map(t => '<option value="' + esc(t.email) + '">' + esc(t.nombre) + '</option>').join('');
+  sel.value = antes || '';
+  pintar();
+}
+function nombreTrader(email) { if (!email) return ''; const t = TRD[String(email).toLowerCase()]; return t ? t.nombre : email; }
+
+// ── Respuestas legibles (una línea por pregunta) ──
+function textoResp(p, v) {
+  if (v == null || v === '') return '';
+  if (p && p.tipo === 'tableros' && Array.isArray(v)) {
+    return v.map(x => {
+      if (!x || typeof x !== 'object') return esc(x);
+      if (x.nota) return 'Otro: ' + esc(x.nota);
+      const esp = Array.isArray(x.espesores) && x.espesores.length ? ' · ' + esc(x.espesores.map(e => String(e).replace(' mm', '')).join(', ')) + ' mm' : '';
+      return esc(x.tipo) + (x.grado ? ' · ' + esc(x.grado) : '') + esp;
+    }).join('<br>');
+  }
+  if (Array.isArray(v)) return v.map(x => typeof x === 'object' ? esc(JSON.stringify(x)) : esc(x)).join(', ');
+  if (typeof v === 'object') return esc(JSON.stringify(v));
+  if (p && p.tipo === 'numero' && /porcentaje/i.test(p.texto)) return esc(v) + ' %';
+  return esc(v);
+}
+function bloqueRespuestas(phone) {
+  const rs = (RESP[phone] || []).slice().sort((a, b) => ((PREG[a.pregunta_id] || {}).orden || 0) - ((PREG[b.pregunta_id] || {}).orden || 0));
+  if (!rs.length) return '<div class="vacio">Aún no contesta el cuestionario.</div>';
+  return rs.map(x => { const p = PREG[x.pregunta_id] || { texto: 'Pregunta ' + x.pregunta_id }; return '<div class="qa"><div class="q">' + esc(p.texto) + (p.activa === false ? ' <span class="chip c-off">pregunta anterior</span>' : '') + '</div><div class="a">' + textoResp(p, x.respuesta) + '</div></div>'; }).join('')
+    + '<div class="cMeta">Contestó el ' + fecha(rs[0].en) + '</div>';
+}
+function resumenReglas(cliente_id) {
+  const c = CLI[String(cliente_id)]; if (!c) return '';
+  const g = REGLAS[String(cliente_id)] || { curacion: 0, ofertar: 0, margenes: 0, frenos: 0 };
+  return '<div class="reglas"><b>' + esc(c.nombre) + '</b> · ' + esc(c.subsidiaria || '') + (c.piloto ? ' · piloto' : '') + ' · trader ' + esc(c.trader_nombre || c.trader_email || '—') +
+    '<br>Reglas hoy en la app: <b>' + g.ofertar + '</b> productos que se le ofertan (' + g.curacion + ' curados) · <b>' + g.margenes + '</b> márgenes · <b>' + g.frenos + '</b> frenos. Se editan en la app (Trader → cliente).</div>';
+}
+const ESTADO_CHIP = { pendiente: ['c-alerta', 'Sin asignar'], vinculado: ['c-ok', 'Vinculado'], prospecto: ['c-info', 'Prospecto'], equipo: ['c-off', 'Equipo NT'], descartado: ['c-off', 'Descartado'] };
+
+// ── Lista agrupada por trader ──
+function pintar() {
+  if (!D) return;
+  const q = (document.getElementById('fBuscar').value || '').toLowerCase().trim();
+  const ft = document.getElementById('fTrader').value;
+  const fe = document.getElementById('fEstado').value;
+  const soloResp = document.getElementById('fConResp').checked;
+  const lista = D.contactos.filter(c => {
+    if (q && !((c.nombre || '') + ' ' + (c.empresa || '') + ' ' + (c.correo || '') + ' ' + c.phone).toLowerCase().includes(q)) return false;
+    if (ft === '__sin' && c.trader_email) return false;
+    if (ft && ft !== '__sin' && String(c.trader_email || '').toLowerCase() !== ft) return false;
+    if (fe && c.estado !== fe) return false;
+    if (soloResp && !(RESP[c.phone] || []).length) return false;
+    return true;
+  });
+  // KPIs (sobre TODO, no sobre el filtro)
+  const todos = D.contactos.filter(c => c.estado !== 'equipo' && c.estado !== 'descartado');
+  const kp = [
+    [todos.length, 'Registrados'],
+    [todos.filter(c => (RESP[c.phone] || []).length).length, 'Contestaron'],
+    [todos.filter(c => c.estado === 'vinculado').length, 'Ligados a cliente'],
+    [todos.filter(c => c.estado === 'pendiente').length, 'Sin asignar'],
+  ];
+  document.getElementById('kpis').innerHTML = kp.map(k => '<div class="kpi"><div class="n">' + k[0] + '</div><div class="t">' + k[1] + '</div></div>').join('');
+
+  // Grupos: Sin asignar primero, luego traders A-Z, equipo al final.
+  const grupos = {};
+  lista.forEach(c => { const k = c.estado === 'equipo' ? '__equipo' : (c.trader_email ? String(c.trader_email).toLowerCase() : '__sin'); (grupos[k] = grupos[k] || []).push(c); });
+  const orden = Object.keys(grupos).sort((a, b) => { const w = k => k === '__sin' ? 0 : k === '__equipo' ? 2 : 1; return (w(a) - w(b)) || nombreTrader(a).localeCompare(nombreTrader(b)); });
+  const titulo = k => k === '__sin' ? 'Sin asignar' : k === '__equipo' ? 'Equipo NT / GF' : nombreTrader(k);
+  document.getElementById('lista').innerHTML = orden.map(k => {
+    const cs = grupos[k].slice().sort((a, b) => (RESP[b.phone] || []).length - (RESP[a.phone] || []).length || String(a.empresa || a.nombre || '').localeCompare(String(b.empresa || b.nombre || '')));
+    return '<div class="grupo"><div class="grupoH"><b>' + esc(titulo(k)) + '</b><span class="chip c-off">' + cs.length + ' contacto' + (cs.length === 1 ? '' : 's') + '</span></div>' + cs.map(tarjeta).join('') + '</div>';
+  }).join('') || '<div class="vacio">Nada con ese filtro.</div>';
+  pintarResumen(lista);
+}
+function tarjeta(c) {
+  const n = (RESP[c.phone] || []).length;
+  const est = ESTADO_CHIP[c.estado] || ESTADO_CHIP.pendiente;
+  const abierto = !!ABIERTOS[c.phone];
+  const opCli = '<option value="">— sin cliente —</option>' + D.clientes.slice().sort((a, b) => String(a.corto || a.nombre).localeCompare(String(b.corto || b.nombre)))
+    .map(x => '<option value="' + esc(x.cliente_id) + '"' + (String(x.cliente_id) === String(c.cliente_id || '') ? ' selected' : '') + '>' + esc(x.corto || x.nombre) + ' · ' + esc(x.trader_nombre || '') + '</option>').join('');
+  const opTr = '<option value="">— sin trader —</option>' + D.traders.map(t => '<option value="' + esc(t.email) + '"' + (t.email === String(c.trader_email || '').toLowerCase() ? ' selected' : '') + '>' + esc(t.nombre) + '</option>').join('');
+  const opEst = ['pendiente', 'vinculado', 'prospecto', 'equipo', 'descartado'].map(e => '<option value="' + e + '"' + (e === c.estado ? ' selected' : '') + '>' + ESTADO_CHIP[e][1] + '</option>').join('');
+  const id = c.phone.replace(/\D/g, '');
+  return '<div class="contacto" id="ct' + id + '">' +
+    '<div class="cHead"><div class="cNom">' + esc(c.nombre || '(sin nombre)') + '<small>' + esc(c.empresa || 'Empresa no indicada') + '</small></div>' +
+    '<div class="chips"><span class="chip ' + est[0] + '">' + est[1] + '</span>' +
+    (n ? '<span class="chip c-ok">' + n + ' respuestas</span>' : '<span class="chip c-off">sin cuestionario</span>') +
+    (c.plataforma ? '<span class="chip c-off">' + esc(c.plataforma) + '</span>' : '') + '</div></div>' +
+    '<div class="cMeta">' + esc(c.correo || '') + (c.correo ? ' · ' : '') + esc(c.phone) + ' · registro ' + fecha(c.primer_acceso) + (c.ultimo_acceso ? ' · último acceso ' + fecha(c.ultimo_acceso) : '') +
+    (c.nota ? '<br>Nota: ' + esc(c.nota) : '') + (c.vinculado_por && c.vinculado_por !== 'auto' ? ' · asignó ' + esc(c.vinculado_por) : c.vinculado_por === 'auto' ? ' · ligado automáticamente' : '') + '</div>' +
+    (c.cliente_id ? resumenReglas(c.cliente_id) : '') +
+    '<div class="acciones"><button class="ghost" onclick="toggle(\'' + esc(c.phone) + '\')">' + (abierto ? 'Ocultar' : 'Ver respuestas y asignar') + '</button></div>' +
+    '<div class="detalle' + (abierto ? ' abierto' : '') + '">' +
+      '<h2 style="margin-top:4px">Respuestas</h2>' + bloqueRespuestas(c.phone) +
+      '<h2>Asignar</h2><div class="asignar">' +
+        '<div><label>Cliente (cartera)</label><select id="cli' + id + '" onchange="alCambiarCliente(\'' + id + '\')">' + opCli + '</select></div>' +
+        '<div><label>Trader</label><select id="trd' + id + '">' + opTr + '</select></div>' +
+        '<div><label>Estado</label><select id="est' + id + '">' + opEst + '</select></div>' +
+      '</div>' +
+      '<label>Nota (qué compra, qué quiere, quién es)</label><input id="nota' + id + '" value="' + esc(c.nota || '') + '" placeholder="ej. compra 2x4 y triplay C+C para Querétaro; contacto de compras">' +
+      '<div class="acciones"><button class="mini" onclick="guardar(\'' + esc(c.phone) + '\',\'' + id + '\')">Guardar</button></div>' +
+      '<div class="aviso" id="ok' + id + '"></div>' +
+    '</div></div>';
+}
+function toggle(phone) { ABIERTOS[phone] = !ABIERTOS[phone]; pintar(); const id = 'ct' + phone.replace(/\D/g, ''); const el = document.getElementById(id); if (el && ABIERTOS[phone]) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function alCambiarCliente(id) {
+  const cli = CLI[document.getElementById('cli' + id).value];
+  if (cli && cli.trader_email) document.getElementById('trd' + id).value = String(cli.trader_email).toLowerCase();
+  document.getElementById('est' + id).value = cli ? 'vinculado' : (document.getElementById('trd' + id).value ? 'prospecto' : 'pendiente');
+}
+async function guardar(phone, id) {
+  const quien = document.getElementById('quien').value.trim();
+  const r = await llamar({ action: 'contacto_guardar', phone, cliente_id: document.getElementById('cli' + id).value, trader_email: document.getElementById('trd' + id).value,
+    estado: document.getElementById('est' + id).value, nota: document.getElementById('nota' + id).value, quien });
+  const el = document.getElementById('ok' + id);
+  if (!r.ok) { el.textContent = 'No se guardó: ' + r.error; el.classList.add('error'); el.style.display = 'block'; return; }
+  const c = D.contactos.find(x => x.phone === phone);
+  if (c) Object.assign(c, { cliente_id: r.cliente_id, trader_email: r.trader_email, estado: r.estado, nota: r.nota, vinculado_por: r.vinculado_por });
+  pintar();
+}
+
+// ── Resumen por pregunta (sobre los contactos filtrados) ──
+function pintarResumen(lista) {
+  const phones = new Set(lista.map(c => c.phone));
+  const activas = D.preguntas.filter(p => p.activa).sort((a, b) => a.orden - b.orden);
+  let total = 0; phones.forEach(ph => { if ((RESP[ph] || []).length) total++; });
+  if (!total) { document.getElementById('resumen').innerHTML = '<div class="vacio">Nadie del filtro actual ha contestado todavía.</div>'; return; }
+  const html = activas.map(p => {
+    const rs = D.respuestas.filter(x => x.pregunta_id === p.id && phones.has(x.phone));
+    if (!rs.length) return '';
+    const cuenta = {};
+    const suma = k => { if (k == null || k === '') return; cuenta[k] = (cuenta[k] || 0) + 1; };
+    rs.forEach(x => {
+      const v = x.respuesta;
+      if (p.tipo === 'tableros' && Array.isArray(v)) v.forEach(t => { if (t && t.tipo && !t.nota) { suma(t.tipo); if (t.grado) suma(t.tipo + ' · ' + t.grado); (t.espesores || []).forEach(e => suma(t.tipo + ' · ' + t.grado + ' · ' + e)); } });
+      else if (Array.isArray(v)) v.forEach(o => suma(String(o).replace(/\s*\(especifica\).*$/i, m => m.replace('(especifica)', '').trim())));
+      else if (p.tipo === 'numero') { const n = Number(v); if (!isNaN(n)) cuenta.__nums = (cuenta.__nums || []).concat([n]); }
+      else suma(String(v));
+    });
+    let cuerpo = '';
+    if (cuenta.__nums) { const ns = cuenta.__nums; const prom = ns.reduce((a, b) => a + b, 0) / ns.length; cuerpo = '<div class="barra"><span class="lab">Promedio</span><span class="n">' + (Math.round(prom * 10) / 10) + '</span></div><div class="barra"><span class="lab">Rango</span><span class="n">' + Math.min(...ns) + ' – ' + Math.max(...ns) + '</span></div>'; }
+    else { const ks = Object.keys(cuenta).sort((a, b) => cuenta[b] - cuenta[a]); const max = cuenta[ks[0]] || 1;
+      cuerpo = ks.slice(0, 14).map(k => '<div class="barra"><span class="lab" title="' + esc(k) + '">' + esc(k) + '</span><span class="bg"><span class="fg" style="width:' + Math.round(cuenta[k] / max * 100) + '%"></span></span><span class="n">' + cuenta[k] + '</span></div>').join(''); }
+    return '<div class="preg"><div class="t">' + esc(p.texto) + ' <span class="chip c-off">' + rs.length + '</span></div>' + cuerpo + '</div>';
+  }).join('');
+  document.getElementById('resumen').innerHTML = '<div class="sub">' + total + ' persona' + (total === 1 ? '' : 's') + ' del filtro actual contestaron</div>' + html;
+}
+</script>
+</body>
+</html>
